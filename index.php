@@ -1,12 +1,23 @@
 <?php
 require 'config.php';
 
+function getRealIpAddr() {
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } else {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    return $ip;
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $enteredUsername = $_POST["username"];
     $enteredPassword = $_POST["password"];
     
-    // Get visitor's IP address using an external API
-    $visitorIP = file_get_contents('https://ipinfo.io/ip');
+    // Get visitor's IP address
+    $visitorIP = getRealIpAddr();
     $timestamp = date('Y-m-d H:i:s'); // Get current timestamp
 
     // Log the connection details
@@ -27,37 +38,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html>
-<head><!-- Ajoutez ces deux lignes pour inclure SweetAlert -->
+<head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
-  <script>
-    function togglePasswordInput() {
-        var passwordLabel = document.getElementById("passwordLabel");
-        var passwordInput = document.getElementById("password");
-        
-        if (passwordLabel.style.display === "none") {
-            passwordLabel.style.display = "block";
-            passwordInput.style.display = "block";
+    <script>
+        function togglePasswordInput() {
+            var passwordLabel = document.getElementById("passwordLabel");
+            var passwordInput = document.getElementById("password");
+            
+            if (passwordLabel.style.display === "none") {
+                passwordLabel.style.display = "block";
+                passwordInput.style.display = "block";
+            }
         }
-    }
 
-    function showSuccessModal() {
-        var successModal = document.getElementById("successModal");
-        successModal.style.display = "block";
-    }
-    function showErrorModal() {
-    var errorModal = document.getElementById("errorModal");
-    errorModal.style.display = "block";
-}
-    
-    function showErrorAlert() {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Identifiants incorrects. Veuillez réessayer.',
-        });
-    }
-</script>
+        function showErrorAlert() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Identifiants incorrects. Veuillez réessayer.',
+            });
+        }
+    </script>
     <title>Authentification</title>
     <style>
         body {
@@ -138,7 +140,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     cursor: pointer;
 }
     </style>
-    
 </head>
 <body>
     <div class="container">
