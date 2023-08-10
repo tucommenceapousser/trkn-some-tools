@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: page.php"); // Redirect to the protected page
         exit();
     } else {
-        $errorMessage = "Identifiants incorrects. Veuillez réessayer.";
+        $errorMessage = "you dont have the correct password : Identifiants incorrects. Veuillez réessayer.";
         $sireneSound = '<audio autoplay><source src="sirene.mp3" type="audio/mpeg"></audio>';
     }
 }
@@ -38,41 +38,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
-    <script>
-        function togglePasswordInput() {
-            var passwordLabel = document.getElementById("passwordLabel");
-            var passwordInput = document.getElementById("password");
-            
-            if (passwordLabel.style.display === "none") {
-                passwordLabel.style.display = "block";
-                passwordInput.style.display = "block";
-            }
-        }
-
-        function showErrorAlert() {
-            var errorModal = document.getElementById("errorModal");
-            var audio = new Audio('sirene.mp3'); // Add the path to your sirene.mp3 file
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Identifiants incorrects. Veuillez réessayer.',
-                customClass: {
-                    container: 'error-modal-container'
-                },
-                didOpen: () => {
-                    errorModal.style.display = 'block';
-                    audio.play();
-                },
-                didClose: () => {
-                    errorModal.style.display = 'none';
-                }
-            });
-        }
-    </script>
     <title>Authentification</title>
     <style>
         body {
@@ -161,6 +129,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             max-width: 400px;
             color: #FF0000;
         }
+       .custom-message {
+            font-size: 18px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -181,6 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         <button type="submit">Se connecter</button>
       </form>
+      <p class="custom-message">Indiquez le bon mot de passe pour acceder.</p>
     </div>
     <script>
       function togglePasswordInput() {
@@ -189,6 +162,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           passwordFields.style.display = "block";
         }
       }
+
+      function showErrorAlert() {
+        var errorModal = document.getElementById("errorModal");
+        var audio = new Audio('sirene.mp3'); // Add the path to your sirene.mp3 file
+
+        fetch('messages.json')
+          .then(response => response.json())
+          .then(data => {
+            Swal.fire({
+              icon: 'error',
+              title: data.error.title,
+              text: data.error.text,
+              customClass: {
+                container: 'error-modal-container'
+              },
+              didOpen: () => {
+                errorModal.style.display = 'block';
+                audio.play();
+              },
+              didClose: () => {
+                errorModal.style.display = 'none';
+              }
+            });
+          })
+          .catch(error => {
+            console.error('Error fetching messages:', error);
+          });
+      }
     </script>
-</body>
+  </body>
 </html>
